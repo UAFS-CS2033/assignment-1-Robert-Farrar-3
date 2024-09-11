@@ -1,4 +1,6 @@
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -19,22 +21,62 @@ public class Server{
         PrintWriter out = new PrintWriter(clientSocket.getOutputStream(),true);
 
         //*** Application Protocol *****
+        String[] fileNames = new String[25];
+        int files = 0;
         String buffer = in.readLine();
         while(buffer.length() != 0){
-            System.out.println(buffer);
+            String tokens[] = buffer.split(" ");
+            if(tokens[0].equals("GET")){
+                fileNames[files] = tokens[1];
+                files++;
+            }
+            
             buffer = in.readLine();
         }
+        files = 0;
+        while(fileNames[files] != null){
+            File file = new File("/home/student/projects/assignment-1-Robert-Farrar-3/docroot" + fileNames[files]);
+
+            if(file.isFile()){
+                String fileType[] = fileNames[files].split("\\.");
+                String type = "";
+                if(fileType[1].equals("html")){
+                    type = "text/html";
+                }
+                else if(fileType[1].equals("ico")){
+                    type = "image/vnd.microsoft.icon";
+                }
+                else if(fileType[1].equals("css")){
+                    type = "text/css";
+                }
+                else if(fileType[1].equals("gif")){
+                    type = "image/gif";
+                }
+                else if(fileType[1].equals("jpeg") || fileType[1].equals("jpg")){
+                    type = "image/jpeg";
+                }
+                else if(fileType[1].equals("png")){
+                    type = "image/png";
+                }
+                long length = file.length();
+                out.println("HTTP/1.1 200 OK");
+                out.println("Content-Length: " + length);
+                out.println("Content-Type: " + type);
+                out.println();
+                BufferedReader r = new BufferedReader(new FileReader(file));
+                String string = "";
+                while((string = r.readLine()) != null){
+                    out.println(string);
+                }
+            }
+            else{
+                out.println("HTTP/1.1 404 Not Found");
+                out.println();
+            }
+            files++;
+        }
+       
         
-        out.println("HTTP/1.1  200 OK");
-        out.println("Content-Length: 34");
-        out.println("Content-Type: text/html");
-        out.println();
-        out.printf("<h1>Welcome to the web server</h1>");
-
-        //File file = new File("home/")
-        /*while(!(out.println(file))){
-
-        }*/
         in.close();
         out.close();
     }
