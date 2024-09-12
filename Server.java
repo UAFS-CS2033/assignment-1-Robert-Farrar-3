@@ -68,6 +68,7 @@ public class Server{
                 while((string = r.readLine()) != null){
                     out.println(string);
                 }
+                r.close();
             }
             else{
                 out.println("HTTP/1.1 404 Not Found");
