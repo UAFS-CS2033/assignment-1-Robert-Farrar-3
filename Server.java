@@ -24,11 +24,16 @@ public class Server{
         String[] fileNames = new String[25];
         int files = 0;
         String buffer = in.readLine();
+        String type = "";
         while(buffer.length() != 0){
             String tokens[] = buffer.split(" ");
             if(tokens[0].equals("GET")){
                 fileNames[files] = tokens[1];
                 files++;
+            }
+            else if(tokens[0].equals("Accept:")){
+                String kind[] = tokens[1].split(",");
+                type = kind[0];
             }
             
             buffer = in.readLine();
@@ -38,26 +43,6 @@ public class Server{
             File file = new File("/home/student/projects/assignment-1-Robert-Farrar-3/docroot" + fileNames[files]);
 
             if(file.isFile()){
-                String fileType[] = fileNames[files].split("\\.");
-                String type = "";
-                if(fileType[1].equals("html")){
-                    type = "text/html";
-                }
-                else if(fileType[1].equals("ico")){
-                    type = "image/vnd.microsoft.icon";
-                }
-                else if(fileType[1].equals("css")){
-                    type = "text/css";
-                }
-                else if(fileType[1].equals("gif")){
-                    type = "image/gif";
-                }
-                else if(fileType[1].equals("jpeg") || fileType[1].equals("jpg")){
-                    type = "image/jpeg";
-                }
-                else if(fileType[1].equals("png")){
-                    type = "image/png";
-                }
                 long length = file.length();
                 out.println("HTTP/1.1 200 OK");
                 out.println("Content-Length: " + length);
