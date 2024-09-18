@@ -1,11 +1,13 @@
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Server{
     private ServerSocket serverSocket;
@@ -40,7 +42,7 @@ public class Server{
         }
         files = 0;
         while(fileNames[files] != null){
-            File file = new File("/home/student/projects/assignment-1-Robert-Farrar-3/docroot" + fileNames[files]);
+            File file = new File("assignment-1-Robert-Farrar-3/docroot" + fileNames[files]);
 
             if(file.isFile()){
                 long length = file.length();
@@ -48,12 +50,14 @@ public class Server{
                 out.println("Content-Length: " + length);
                 out.println("Content-Type: " + type);
                 out.println();
-                BufferedReader r = new BufferedReader(new FileReader(file));
-                String string = "";
-                while((string = r.readLine()) != null){
-                    out.println(string);
-                }
-                r.close();
+
+                byte[] bytes = Files.readAllBytes(Paths.get(file.getAbsolutePath()));
+                OutputStream st = clientSocket.getOutputStream();
+
+                st.write(bytes);
+                st.flush();
+
+                st.close();
             }
             else{
                 out.println("HTTP/1.1 404 Not Found");
